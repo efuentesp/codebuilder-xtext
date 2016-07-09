@@ -1,0 +1,251 @@
+grammar com.codebuilder.CodeBuilder with org.eclipse.xtext.common.Terminals
+
+generate codeBuilder "http://www.codebuilder.com/CodeBuilder"
+
+Model:
+	(entities += Entity)*
+	(views += View)*
+	(entity_select += EntitySelect)*
+;
+
+Entity:
+	'entity' name=ID '{'
+		(entity_title=EntityTitle)
+		(entity_db_table=EntityDbTable)?
+		'fields' '{'
+			(entity_fields += EntityField)+
+		'}'
+	'}'
+;
+
+EntityTitle:
+	'title' entity_title=STRING
+;
+
+EntityDbTable:
+	'db_table' '{'
+		('name' entity_db_table=STRING)?
+		'id' id_db_table=ID
+	'}'
+;
+
+EntityField:
+	EntityTextField |
+	EntityLongTextField |
+	EntityIntegerField |
+	EntityListField |
+	EntityOptionField |
+	EntityCheckboxField |
+	EntityReferenceField |
+	EntityFieldPanelGroup
+;
+
+EntityTextField:
+	'Text' name=ID '{'
+		(label=FieldLabel)
+		(max_length=FieldMaxLength)?
+		(size_textfield=FieldSizeTextField)?
+		(default_value=FieldDefaultValueString)?
+		(help_text=FieldHelpText)?
+		(db_field=FieldDbField)?
+		(required=FieldRequired)?
+		(cardinality=FieldCardinality)?
+	'}'
+;
+
+EntityLongTextField:
+	'LongText' name=ID '{'
+		(label=FieldLabel)
+		(default_value=FieldDefaultValueString)?
+		(rows=FieldRows)?
+		(help_text=FieldHelpText)?
+		(db_field=FieldDbField)?
+		(required=FieldRequired)?
+		(cardinality=FieldCardinality)?
+	'}'
+;
+
+EntityIntegerField:
+	'Integer' name=ID '{'
+		(label=FieldLabel)
+		(min_value=FieldMinValue)?
+		(max_value=FieldMaxValue)?
+		(prefix=FieldPrefix)?
+		(sufix=FieldSuffix)?
+		(default_value=FieldDefaultValueInteger)?
+		(help_text=FieldHelpText)?
+		(db_field=FieldDbField)?
+		(required=FieldRequired)?
+		(cardinality=FieldCardinality)?
+	'}'
+;
+
+EntityListField:
+	'List' name=ID '{'
+		(label=FieldLabel)
+		(help_text=FieldHelpText)?
+		(db_field=FieldDbField)?
+		(required=FieldRequired)?
+		'values' '{'
+			(values += EntityListFieldValues)+
+		'}'
+	'}'
+;
+
+EntityOptionField:
+	'Option' name=ID '{'
+		(label=FieldLabel)
+		(help_text=FieldHelpText)?
+		(db_field=FieldDbField)?
+		(required=FieldRequired)?
+		'values' '{'
+			(values += EntityListFieldValues)+
+		'}'
+	'}'
+;
+
+EntityCheckboxField:
+	'Checkbox' name=ID '{'
+		(label=FieldLabel)
+		(help_text=FieldHelpText)?
+		(db_field=FieldDbField)?
+		(required=FieldRequired)?
+		'values' '{'
+			(values += EntityListFieldValues)+
+		'}'
+	'}'
+;
+
+EntityFieldPanelGroup:
+	'Panel' name=ID '{'
+		(label=FieldLabel)
+		'fields' '{'
+			(entity_fields += EntityField)+
+		'}'
+	'}'
+;
+
+EntityReferenceField:
+	field_reference=[Entity] name=ID '{'
+		(label=FieldLabel)
+		(widget=FieldWidget)
+		(help_text=FieldHelpText)?
+		(db_field=FieldDbField)?
+		(required=FieldRequired)?
+	'}'
+;
+
+FieldDefaultValueString:
+	'default_value' value=STRING
+;
+
+FieldDefaultValueInteger:
+	'default_value' value=INT
+;
+
+FieldLabel:
+	'label' value=STRING
+;
+
+FieldWidget:
+	'widget' entity_select=[EntitySelect]
+;
+
+FieldMinValue:
+	'min_value' value=INT
+;
+
+FieldMaxValue:
+	'max_value' value=INT
+;
+
+FieldPrefix:
+	'prefix' value=STRING
+;
+
+FieldSuffix:
+	'suffix' value=STRING
+;
+
+FieldMaxLength:
+	'max_length' value=INT
+;
+
+FieldSizeTextField:
+	'size_textfield' value=INT
+;
+
+FieldRows:
+	'field_rows' value=INT
+;
+
+FieldHelpText:
+	'help_text' value=STRING
+;
+
+FieldDbField:
+	'db_field' value=STRING
+;
+
+FieldRequired:
+	required='required'
+;
+
+FieldCardinality:
+	'cardinality' value=INT
+;
+
+EntityListFieldValues:
+	key=ID '|' label=STRING	
+;
+
+View:
+	'view' name=ID '{'
+		'base_entity' base_entity=[Entity]
+		'fields' '{'
+			(fields += ViewField)+
+			(add_link='add_link')?			
+			(show_link='show_link')?
+			(edit_link='edit_link')?
+			(delete_link='delete_link')?
+		'}'
+		('exposed_filter_criterias' '{'
+			(exposed_filter += ViewExposedFilter)+
+		'}')?
+		(pager = ViewPager)?
+	'}'
+;
+
+EntitySelect:
+	'entity_select' name=ID '{'
+		'base_entity' base_entity=[Entity]
+		'selected_field' selected_field=ID
+		'fields' '{'
+			(fields += ViewField)+
+			(single_select = 'single' | multiple_select = 'multiple')?			
+		'}'
+		('exposed_filter_criterias' '{'
+			(exposed_filter += ViewExposedFilter)+
+		'}')?
+		(pager = ViewPager)?
+	'}'
+;
+
+ViewField:
+	(entity=[Entity] '.')? name=ID '{'
+		'label' label=STRING
+	'}'
+;
+
+ViewExposedFilter:
+	(entity=[Entity] '.')? name=ID '{'
+		('label' label = STRING)
+		required=('required')?
+	'}'
+;
+
+ViewPager:
+	'pager' '{'
+		'items_per_page' items=INT
+	'}'
+;

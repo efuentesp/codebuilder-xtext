@@ -14,6 +14,7 @@ import com.codebuilder.codeBuilder.EntityCheckboxField
 import com.codebuilder.codeBuilder.EntityReferenceField
 import com.codebuilder.codeBuilder.EntityFieldPanelGroup
 
+
 class Ng2EntityComponentTsGenerator {
 	
 	def doGenerator(Resource resource, IFileSystemAccess2 fsa) {
@@ -40,9 +41,16 @@ class Ng2EntityComponentTsGenerator {
 		import { «entity.name.toFirstUpper» } from './«entity.name.toFirstLower».class';
 		import { «entity.name.toFirstUpper»Service } from './«entity.name.toFirstLower».service';
 		
+		«FOR r : entity.entity_fields»
+			«r.createEntityReferenceComponentImport»
+		«ENDFOR»		
+		
 		@Component({
 			templateUrl: 'app/«entity.name.toFirstLower»/«action»-«entity.name.toFirstLower».component.html',
-			directives: [FORM_DIRECTIVES]
+			directives: [FORM_DIRECTIVES
+				«FOR r : entity.entity_fields»
+					«r.createEntityReferenceComponentDirective»
+				«ENDFOR»]
 		})
 		export class «action.toFirstUpper»«entity.name.toFirstUpper»Component implements OnInit {
 
@@ -110,6 +118,66 @@ class Ng2EntityComponentTsGenerator {
 			}
 		}
 	'''
+	
+	def dispatch CharSequence createEntityReferenceComponentDirective(EntityTextField f) '''
+	'''
+	
+	def dispatch CharSequence createEntityReferenceComponentDirective(EntityLongTextField f) '''
+	'''	
+
+	def dispatch CharSequence createEntityReferenceComponentDirective(EntityIntegerField f) '''
+	'''
+	
+	def dispatch CharSequence createEntityReferenceComponentDirective(EntityListField f) '''
+	'''
+	
+	def dispatch CharSequence createEntityReferenceComponentDirective(EntityOptionField f) '''
+	'''
+	
+	def dispatch CharSequence createEntityReferenceComponentDirective(EntityCheckboxField f) '''
+	'''	
+
+	def dispatch CharSequence createEntityReferenceComponentDirective(EntityReferenceField f) '''
+		, «f.widget.entity_select.name.toFirstUpper»Component
+	'''
+	
+	def dispatch CharSequence createEntityReferenceComponentDirective(EntityFieldPanelGroup g) '''
+		«FOR f : g.entity_fields»
+			«f.createEntityReferenceComponentDirective»
+		«ENDFOR»	
+	'''
+
+	
+	
+	def dispatch CharSequence createEntityReferenceComponentImport(EntityTextField f) '''
+	'''
+	
+	def dispatch CharSequence createEntityReferenceComponentImport(EntityLongTextField f) '''
+	'''
+
+	def dispatch CharSequence createEntityReferenceComponentImport(EntityIntegerField f) '''
+	'''
+	
+	def dispatch CharSequence createEntityReferenceComponentImport(EntityListField f) '''
+	'''
+	
+	def dispatch CharSequence createEntityReferenceComponentImport(EntityOptionField f) '''
+	'''
+	
+	def dispatch CharSequence createEntityReferenceComponentImport(EntityCheckboxField f) '''
+	'''
+
+	def dispatch CharSequence createEntityReferenceComponentImport(EntityReferenceField f) '''
+		import { «f.widget.entity_select.name.toFirstUpper»Component } from '../«f.widget.entity_select.name.toFirstLower»/«f.widget.entity_select.name.toFirstLower».component';
+	'''
+	
+	def dispatch CharSequence createEntityReferenceComponentImport(EntityFieldPanelGroup g) '''
+		«FOR f : g.entity_fields»
+			«f.createEntityReferenceComponentImport»
+		«ENDFOR»	
+	'''
+		
+	
 	
 	def dispatch CharSequence createNg2ComponentControlItemUpdate(EntityTextField f, Entity e) '''
 		this.«f.name».updateValue(this.«e.name.toFirstLower».«f.name»);
